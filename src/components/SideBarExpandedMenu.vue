@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { ref, onMounted, onUnmounted } from 'vue';
     import ChevronsRight from '@/components/icons/ChevronsRight.vue';
+    import SideBarExpandedSideMenu from './SideBarExpandedSideMenu.vue';
     
     const props = defineProps<{ menu: any[] }>()
     const openMenus = ref<{ [key: string]: boolean }>({})
@@ -50,13 +51,13 @@
 
                 <!-- Submenu (only shows if toggled open) -->
 
-                <!--TODO: Pull out into a separate component-->
+                <!--TODO: Pull out into a separate component?-->
                 <Transition name="fade-slide">
                     <div v-if="openMenus[item.label] && item.subMenu.length" class="expanded-menu">
                             <router-link 
                                 v-for="(subItem, subIdx) in item.subMenu" 
                                 :key="subIdx" 
-                                :to="item.route" 
+                                :to="subItem.route" 
                                 class="sub-menu-item"
                             >
                                 <span class="sidebar-menu-title">{{ subItem.label }}</span>

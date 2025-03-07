@@ -11,27 +11,27 @@ import UserProfile from './icons/UserProfile.vue'
 
 // Menu structure
 const scoresSubMenu = [
-    { label: "Participant Scores", route:"/fillingspacehere" },
-    { label: "Search Scores", route:"/fillingspacehere" },
+    { label: "Participant Scores", route: "/" },
+    { label: "Search Scores", route:"/" },
 ]
 
 const statusSubMenu = [
-    { label: "Tag Reads", route: "/fillingspacehere" },
+    { label: "Tag Reads", route: "/" },
     { label: "Scores", subMenu: scoresSubMenu },
-    { label: "Progress", route: "/fillingspacehere" },
-    { label: "Missing Reads", route: "/fillingspacehere" },
-    { label: "Stats", route: "/fillingspacehere" },
-    { label: "Wave Report", route: "/fillingspacehere" },
-    { label: "Iridium", route: "/fillingspacehere" },
+    { label: "Progress", route: "/" },
+    { label: "Missing Reads", route: "/" },
+    { label: "Stats", route: "/" },
+    { label: "Wave Report", route: "/" },
+    { label: "Iridium", route: "/" },
 ]
 
 const timingMenu = [
-    { label: "Setup", route: "/fillingspacehere" },
-    { label: "Participant", route: "/fillingspacehere" },
+    { label: "Setup", route: "/" },
+    { label: "Participant", route: "/" },
     { label: "Status", subMenu: statusSubMenu },
-    { label: "Forms", route: "/fillingspacehere" },
-    { label: "Import/Export", route: "/fillingspacehere" },
-    { label: "Media", route: "/timing-setup" }
+    { label: "Forms", route: "/" },
+    { label: "Import/Export", route: "/" },
+    { label: "Media", route: "/" }
 ]
 
 const topSectionIcons = [
