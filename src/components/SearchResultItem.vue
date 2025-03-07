@@ -6,11 +6,11 @@
 
     defineEmits(['selected-item'])
     //TODO: define the actual types
-    defineProps<{
+    const props = defineProps<{
         data: {
-            entity: { name: string }
-            hosts: Object[]
-            events: Object[]
+            entity: { id: number; name: string }
+            hosts: { name: string }[]
+            events: { name: string; date: string; host_id: string; [key: string]: any }[]
         }
     }>()
     
@@ -20,13 +20,13 @@
         return `${ new Date(event.date).getFullYear() } - ${ event.name }`
     }
 
-    function handleEventClick(event: Object){
+    function handleEventClick(event: { host_id: string; [key: string]: any }){
         console.log("selected event:", event)
-        let host = getHostFromId(event.host_id)
+        let host = getHostFromId(event.host_id, props.data.entity)
         console.log('host:', host)
     }
 
-    function handleHostClick(host: Object){
+    function handleHostClick(host: { name: string }){
         console.log('selected host:', host)
     }
 </script>

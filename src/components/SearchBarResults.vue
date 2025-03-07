@@ -9,7 +9,13 @@
         searchData: Object
     })
 
-    let searchData = ref([])
+    interface SearchResult {
+        entity: any;
+        hosts: any[];
+        events: any[];
+    }
+    
+    let searchData = ref<SearchResult[]>([])
     
     /* TODO: 
         - [DONE] Decide on tiered display ( entities => hosts => events )

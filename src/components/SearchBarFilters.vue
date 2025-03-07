@@ -37,13 +37,13 @@
 
     //TODO: Write the computed properties so that 
     // when the search is triggered, the entities, hosts, and events are filtered
-    const entities = computed(() => {
+    const entities = computed<Option[]>(() => {
         return []
     })
-    const hosts = computed(() => {
+    const hosts = computed<Option[]>(() => {
         return []
     })
-    const events = computed(() => {
+    const events = computed<Option[]>(() => {
         return []
     })
 

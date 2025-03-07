@@ -120,12 +120,37 @@ export const useDataStore = defineStore('data', () => {
     inSearchMode.value  = !inSearchMode.value
   }
 
-  function getHostFromId(hostId: number, entity){
-    console.log("id:", id)
+  interface Entity {
+    id: number;
+    name: string;
+  }
+
+  interface Host {
+    id: string;
+    name: string;
+    entity_id: number;
+    entity?: Entity;
+  }
+
+  interface Event {
+    id: string;
+    name: string;
+    date: string;
+    host_id: string;
+  }
+
+  interface CombinedData {
+    entity: Entity;
+    hosts: Host[];
+    events: Event[];
+  }
+
+  function getHostFromId(hostId: string, entity: Entity): Host[] {
     let test = combinedOriginalData.value
             .flatMap(data => data.hosts)
-            .filter(host => host.id === id)
+            .filter(host => host.id === hostId)
     console.log('test:', test)
+    return test;
   }
 
   return { 
