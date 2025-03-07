@@ -12,8 +12,10 @@ export const useDataStore = defineStore('data', () => {
   // Fetch data from JSON file and populate combinedOriginalData
   const fetchData = async () => {
     try {
-      const response = await fetch('/Brooksee4.json')
+      const basePath = import.meta.env.BASE_URL;
+      const response = await fetch(`${ basePath }Brooksee4.json`)
       const data = await response.json()
+      console.log("data:", data)
       combinedOriginalData.value = mergeData(data.entities, data.hosts, data.events)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -95,7 +97,7 @@ export const useDataStore = defineStore('data', () => {
   
   function filterEvents(events: any[], filter: string) {
     return events
-      .filter(event => event.name.toLowerCase().startsWith(filter) || isMatchingYear(event.date, filter) && event.name)
+      .filter(event => event.name.toLowerCase().startsWith(filter) || isMatchingYear(event.date, filter))
       .sort((a, b) => {
         const yearA = new Date(a.date).getFullYear()
         const yearB = new Date(b.date).getFullYear()
@@ -111,7 +113,7 @@ export const useDataStore = defineStore('data', () => {
   })
 
   const setFilter = (filter: string) => {
-    searchFilter.value = filter
+    searchFilter.value = filter.trim()
     inSearchMode.value = true
     console.log("search filter is set to:", searchFilter.value)
   }

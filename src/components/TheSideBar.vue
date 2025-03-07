@@ -87,7 +87,7 @@ const toggleMenu = (label: string) => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 20px 0;
   height: calc(90vh - 20px);
   max-height: 100%;
 }
@@ -97,20 +97,5 @@ const toggleMenu = (label: string) => {
   justify-content: center;
   width: 100%;
   gap: 20px;
-}
-.icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 40px;
-    margin: auto;
-}
-.icon-label {
-    color: white;
-    text-align: center;
-    font-size: 10px;
-    white-space: nowrap;
-    margin: 0;
-    font-weight: bold;
 }
 </style>
