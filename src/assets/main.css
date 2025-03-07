@@ -1,0 +1,30 @@
+@import './base.css';
+
+a {
+  text-decoration: none;
+  transition: 0.4s;
+  padding: 3px;
+  cursor: pointer;
+}
+
+input {
+  border-radius: 50px;
+  width: 100%;
+  border: 1px solid var(--light-gray-border-color);
+  padding: 10px 0px 10px 40px;
+}
+input::placeholder {
+  color: var(--color1);
+  font-weight: bold;
+  font-style: italic;
+}
+
+@media (hover: hover) {
+  /* a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  } */
+}
+
+@media (min-width: 1024px) {
+
+}
