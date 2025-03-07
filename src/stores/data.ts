@@ -120,6 +120,7 @@ export const useDataStore = defineStore('data', () => {
     inSearchMode.value  = !inSearchMode.value
   }
 
+  /*TODO: Add actual types for these in the types folder */
   interface Entity {
     id: number;
     name: string;

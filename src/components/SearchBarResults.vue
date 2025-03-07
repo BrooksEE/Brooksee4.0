@@ -9,6 +9,7 @@
         searchData: Object
     })
 
+    /* TODO: add an actual type for this in the types folder */
     interface SearchResult {
         entity: any;
         hosts: any[];
