@@ -15,7 +15,6 @@ export const useDataStore = defineStore('data', () => {
       const basePath = import.meta.env.BASE_URL;
       const response = await fetch(`${ basePath }Brooksee4.json`)
       const data = await response.json()
-      console.log("data:", data)
       combinedOriginalData.value = mergeData(data.entities, data.hosts, data.events)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -76,8 +75,16 @@ export const useDataStore = defineStore('data', () => {
     combinedOriginalData.value.forEach(item => {
       const matchingHosts = filterHosts(item.hosts, filter)
       const matchingEvents = filterEvents(item.events, filter)
+      const hostsFromEvents = gatherHostsFromEvents(matchingEvents)
+
+      const combinedHosts = [...matchingHosts, ...hostsFromEvents]
+        .filter((host, index, self) => 
+          index === self.findIndex(h => h.id === host.id) // Remove duplicates based on `id`
+        )
+        .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically by name
+    
       
-      if (matchingHosts.length || matchingEvents.length) {
+      if (combinedHosts.length || matchingEvents.length) {
         filteredSearchData.value.push({ ...item, hosts: matchingHosts, events: matchingEvents })
       } else if (item.entity.name.toLowerCase().startsWith(filter)) {
         filteredSearchData.value.push({ ...item, hosts: [], events: [] })
@@ -86,6 +93,19 @@ export const useDataStore = defineStore('data', () => {
     filteredSearchData.value.sort((a, b) => a.entity.name.localeCompare(b.entity.name))
     
     loading.value = false
+  }
+
+  function gatherHostsFromEvents(events: any[]){
+    let hostsNotAlreadyInSearchResults = []
+
+    for(let event of events){
+      let host = getHostFromId(event.host_id)
+      if(host){
+        hostsNotAlreadyInSearchResults.push(host)
+      }
+
+    }
+    return hostsNotAlreadyInSearchResults
   }
   
   function filterHosts(hosts: any[], filter: string) {
@@ -148,12 +168,11 @@ export const useDataStore = defineStore('data', () => {
     events: Event[];
   }
 
-  function getHostFromId(hostId: string, entity: Entity): Host[] {
+  function getHostFromId(hostId: string): Host {
     let test = combinedOriginalData.value
             .flatMap(data => data.hosts)
-            .filter(host => host.id === hostId)
-    console.log('test:', test)
-    return test;
+            .find(host => host.id === hostId)
+    return test
   }
 
   return { 

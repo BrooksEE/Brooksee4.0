@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { defineProps } from 'vue';
+    import { defineProps, ref } from 'vue';
     import { useSelectedItemStore } from '@/stores/selected';
     import { useDataStore } from '@/stores/data';
     import ChevronsRight from './icons/ChevronsRight.vue';
@@ -13,16 +13,22 @@
             events: { name: string; date: string; host_id: string; [key: string]: any }[]
         }
     }>()
-    
+
+    let combinedHosts = ref([]) //this allows for a display of 
     const { updateSelectedItem } = useSelectedItemStore()
     const { getHostFromId } = useDataStore()
-    function formatEventName(event: { name: string; date: string; }) {
+    function formatEventName(event: { name: string; date: string; host_id: string }) {
         return `${ new Date(event.date).getFullYear() } - ${ event.name }`
+    }
+
+    function getEventHostName(event: { name: string; date: string; host_id: string }){
+        let host = getHostFromId(event.host_id)
+        return host ? host.name : ''
     }
 
     function handleEventClick(event: { host_id: string; [key: string]: any }){
         console.log("selected event:", event)
-        let host = getHostFromId(event.host_id, props.data.entity)
+        let host = getHostFromId(event.host_id)
         console.log('host:', host)
     }
 
@@ -49,7 +55,12 @@
         <div v-if="data.events.length > 0" class="events">
             <template v-for="(event, idx) in data.events" :key="idx">
                 <p @click="handleEventClick(event)" class="event">
-                    <span class="event-icon">🏆</span> {{ formatEventName(event) }}
+                    <div class="event-data">
+                        <div>
+                            <span class="event-icon">🏆</span> {{ formatEventName(event) }} 
+                        </div>
+                        <span class="event-host">Host: {{ getEventHostName(event) }}</span>
+                    </div>
                 </p>
             </template>
         </div>
@@ -107,5 +118,13 @@
 
     .host:hover .host-icon, .event:hover .event-icon {
         color: var(--primary-color);
+    }
+    .event-data{
+        display: flex;
+        flex-direction: column;
+    }
+    .event-host {
+        font-style: italic;
+        color: var(--light-gray-text);
     }
 </style>
