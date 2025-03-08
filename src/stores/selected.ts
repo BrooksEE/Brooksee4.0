@@ -10,9 +10,9 @@ export const useSelectedItemStore = defineStore('selected', () => {
       host: Host
       event: Event
     }>({
-      entity: { id: '', name: '' },
-      host: { name: '' },
-      event: { name: '', date: '', host_id: '' }
+      entity: {} as Entity,
+      host: {} as Host,
+      event: {} as Event
     })
     
 
