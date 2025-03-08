@@ -1,17 +1,25 @@
 <script setup lang="ts">
-    import { ref, watch, computed, onMounted, type Ref } from "vue";
+    import { ref, watch, computed, type Ref } from "vue";
+    import { storeToRefs } from "pinia";
     import { useDataStore } from '@/stores/data';
-    import type { Option } from "@/types/options";
-    import MagnifyingGlass from "./icons/MagnifyingGlass.vue";
+    import { useSelectedItemStore } from '@/stores/selected';
     import { defineModel } from 'vue'
+    import MagnifyingGlass from "./icons/MagnifyingGlass.vue";
+    import type { Option } from "@/types/options";
+    import type { Event } from '@/types/event';
+    import type { Entity } from '@/types/entity';
+    import type { Host } from '@/types/host';
 
     defineEmits(['searchInFocus'])
 
     const dataStore = useDataStore()
+    const selectedItemStore = useSelectedItemStore()
+    const { updateSelectedItem } = selectedItemStore
     const entity = ref("")
     const host = ref("")
     const event = ref("")
     const search = defineModel<string>({ required: true })
+    const { selectedItem } = storeToRefs(selectedItemStore)
     
     //TODO:
     /*
@@ -22,6 +30,20 @@
     // watch([search, entity, host, event], () => {
 
     // })
+
+    watch(selectedItem, (newValue) => {
+        console.log('newValue:', newValue)
+
+        // TODO: Update available options first -- this is a hack
+        entities.value = [{ value: newValue.entity.id, label: newValue.entity.name }]
+        hosts.value = [{ value: newValue.host.id, label: newValue.host.name }]
+        events.value = [{ value: newValue.event.id, label: newValue.event.full_name }]
+
+        // Then set the selected values
+        entity.value = newValue.entity.id
+        host.value = newValue.host.id
+        event.value = newValue.event.id
+    })
 
     watch(search, (newValue, oldValue) => {
         if(newValue.length === 0) {
@@ -37,16 +59,19 @@
 
     //TODO: Write the computed properties so that 
     // when the search is triggered, the entities, hosts, and events are filtered
-    const entities = computed<Option[]>(() => {
-        return []
-    })
-    const hosts = computed<Option[]>(() => {
-        return []
-    })
-    const events = computed<Option[]>(() => {
-        return []
-    })
+    // const entities = computed<Option[]>(() => {
+    //     return []
+    // })
+    // const hosts = computed<Option[]>(() => {
+    //     return []
+    // })
+    // const events = computed<Option[]>(() => {
+    //     return []
+    // })
 
+    const entities: Ref<Option[]> = ref([])
+    const hosts: Ref<Option[]> = ref([])
+    const events: Ref<Option[]> = ref([])
 </script>
 <template>
         <div class="search">

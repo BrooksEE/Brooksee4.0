@@ -1,12 +1,20 @@
 <script setup lang="ts">
     import { ref, watch } from "vue";
     import { useDataStore } from "@/stores/data";
+    import { storeToRefs } from "pinia"
+    import { useSelectedItemStore } from '@/stores/selected';
     import SearchBarResultsDropdown from "./SearchBarResultsDropdown.vue";
     import SearchBarFilters from "./SearchBarFilters.vue";
 
     const dataStore = useDataStore()
+    const selectedItemStore = useSelectedItemStore()
+    const { selectedItem } = storeToRefs(selectedItemStore)
     const showDropdown = ref(false)
     const searchQuery = ref('')
+
+    watch(selectedItem, (newValue) => {
+        closeDropdown()
+    }, { deep: true })
 
     const closeDropdown = () => {
         showDropdown.value = false

@@ -1,5 +1,6 @@
 import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import type { Event } from '@/types/event'
 
 //TODO: Not sure what to name this yet....
 export const useDataStore = defineStore('data', () => {
@@ -15,6 +16,7 @@ export const useDataStore = defineStore('data', () => {
       const basePath = import.meta.env.BASE_URL;
       const response = await fetch(`${ basePath }Brooksee4.json`)
       const data = await response.json()
+      console.log("original data:", data)
       combinedOriginalData.value = mergeData(data.entities, data.hosts, data.events)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -22,14 +24,14 @@ export const useDataStore = defineStore('data', () => {
   }
 
   // Internal function to merge entities, hosts, and events
-  function mergeData(entities: any[], hosts: any[], events: any[]) {
+  function mergeData(entities: Entity[], hosts: Host[], events: Event[]) {
     const entityMap = new Map(entities.map(entity => [entity.id, entity]))
   
     // Create a map for hosts, associating them with their entities
     const hostMap = new Map(hosts.map(host => [host.id, { ...host, entity: entityMap.get(host.entity_id) }]))
   
     // Create a map for the result, where each key is an entity, and its value is an object with hosts and events
-    const resultMap = new Map<number, { entity: any, hosts: any[], events: any[] }>()
+    const resultMap = new Map<number, { entity: Entity, hosts: Host[], events: Event[] }>()
   
     // Build the resultMap
     events.forEach(event => {
@@ -155,24 +157,69 @@ export const useDataStore = defineStore('data', () => {
     entity?: Entity;
   }
 
-  interface Event {
-    id: string;
-    name: string;
-    date: string;
-    host_id: string;
-  }
-
   interface CombinedData {
     entity: Entity;
     hosts: Host[];
     events: Event[];
   }
 
+  //TODO: is it better to keep it as a flat structure?
   function getHostFromId(hostId: string): Host {
-    let test = combinedOriginalData.value
+    return combinedOriginalData.value
             .flatMap(data => data.hosts)
             .find(host => host.id === hostId)
-    return test
+  }
+
+  function getLatestEventFromHost(hostId: string): Event {
+    return combinedOriginalData.value
+            .flatMap(data => data.events)
+            .filter(event => event.host_id === hostId)
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] || null
+  }
+
+  function getFilteredEntities(){
+    if(filteredSearchData.value.length){
+      return filteredSearchData.value.map(item => item.entity)
+    }
+
+    return []
+    // return combinedOriginalData.value.flatMap(item => 
+    //   item.entity.map(entity => ({
+    //     value: entity.id, 
+    //     label: entity.name
+    //   }))
+    // )
+  }
+
+  function getFilteredHosts(){
+    if(filteredSearchData.value.length){
+      return filteredSearchData.value.flatMap(item => 
+        item.hosts.map(host => ({
+            value: host.id, 
+            label: host.name
+        }))
+      )
+    }
+    
+    return combinedOriginalData.value.flatMap(item => 
+      item.hosts.map(host => ({
+          value: host.id, 
+          label: host.name
+      }))
+    )
+  }
+
+  function getFilteredEvents(){
+    if(filteredSearchData.value.length){
+      return filteredSearchData.value.map(item => item.entity)
+    }
+
+    return combinedOriginalData.value.flatMap(item => 
+      item.events.map(event => ({
+          value: event.id, 
+          label: event.full_name
+      }))
+    )
   }
 
   return { 
@@ -183,6 +230,7 @@ export const useDataStore = defineStore('data', () => {
     clearSearchResults,
     fetchData,
     setFilter,
-    getHostFromId
+    getHostFromId,
+    getLatestEventFromHost
   }
 })

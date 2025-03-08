@@ -2,38 +2,43 @@
     import { defineProps, ref } from 'vue';
     import { useSelectedItemStore } from '@/stores/selected';
     import { useDataStore } from '@/stores/data';
+    import type { Event } from '@/types/event';
+    import type { Entity } from '@/types/entity';
+    import type { Host } from '@/types/host';
     import ChevronsRight from './icons/ChevronsRight.vue';
 
     defineEmits(['selected-item'])
     //TODO: define the actual types
     const props = defineProps<{
         data: {
-            entity: { id: number; name: string }
-            hosts: { name: string }[]
-            events: { name: string; date: string; host_id: string; [key: string]: any }[]
+            entity: Entity
+            hosts: Host[]
+            events: Event[]
         }
     }>()
 
-    let combinedHosts = ref([]) //this allows for a display of 
     const { updateSelectedItem } = useSelectedItemStore()
-    const { getHostFromId } = useDataStore()
-    function formatEventName(event: { name: string; date: string; host_id: string }) {
+    const { getHostFromId, getLatestEventFromHost } = useDataStore()
+    function formatEventName(event: Event) {
         return `${ new Date(event.date).getFullYear() } - ${ event.name }`
     }
 
-    function getEventHostName(event: { name: string; date: string; host_id: string }){
+    function getEventHostName(event: Event){
         let host = getHostFromId(event.host_id)
         return host ? host.name : ''
     }
 
-    function handleEventClick(event: { host_id: string; [key: string]: any }){
+    function handleEventClick(event: Event){
         console.log("selected event:", event)
         let host = getHostFromId(event.host_id)
         console.log('host:', host)
+        updateSelectedItem(props.data.entity, host, event)
     }
 
-    function handleHostClick(host: { name: string }){
+    function handleHostClick(host: Host){
         console.log('selected host:', host)
+        const latestEvent = getLatestEventFromHost(host.id)
+        updateSelectedItem(props.data.entity, host, latestEvent)
     }
 </script>
 
