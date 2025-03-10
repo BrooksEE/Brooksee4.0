@@ -83,7 +83,7 @@
         }
     }
 
-    @media screen only and (max-width: 1000px) {
+    @media screen only and (max-width: 1200px) {
         .recent-list {
             gap: 5px;
             padding: 0;

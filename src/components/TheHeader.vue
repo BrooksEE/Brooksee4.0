@@ -56,16 +56,16 @@
             position: relative;
         }
     }
-    @media only screen and (max-width: 1000px) {
+    @media only screen and (max-width: 1200px) {
         header {
             height: auto;
             padding: 10px;
         }
+    }
+    @media only screen and (max-width: 850px) {
         .search-bar-container {
             flex-grow: 1;
         }
-    }
-    @media only screen and (max-width: 850px) {
         header {
             flex-direction: column;
         }
