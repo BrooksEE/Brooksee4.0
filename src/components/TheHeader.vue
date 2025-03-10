@@ -56,7 +56,7 @@
             position: relative;
         }
     }
-    @media only screen and (max-width: 1200px) {
+    @media only screen and (max-width: 1180px) {
         header {
             height: auto;
             padding: 10px;
