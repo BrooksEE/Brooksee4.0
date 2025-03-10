@@ -1,13 +1,13 @@
 <script setup lang="ts">
-    import { onMounted } from "vue";
+    import { onBeforeMount } from "vue";
     import { useDataStore } from "@/stores/data";
     import TheHeader from "@/components/TheHeader.vue";
     import TheSideBar from "@/components/TheSideBar.vue";
 
-    const backend = useDataStore()
+    const dataStore = useDataStore()
 
-    onMounted(async () => {
-        await backend.fetchData()
+    onBeforeMount(async () => {
+        await dataStore.fetchData()
     })
 </script>
 <template>

@@ -3,75 +3,91 @@
     import { storeToRefs } from "pinia";
     import { useDataStore } from '@/stores/data';
     import { useSelectedItemStore } from '@/stores/selected';
-    import { defineModel } from 'vue'
+    import { defineModel } from 'vue';
     import MagnifyingGlass from "./icons/MagnifyingGlass.vue";
-    import type { Option } from "@/types/options";
-    import type { Event } from '@/types/event';
-    import type { Entity } from '@/types/entity';
-    import type { Host } from '@/types/host';
+    import SearchBarFilterSelect from "./SearchBarFilterSelect.vue";
+    import type { Option } from "@/types/option";
 
     defineEmits(['searchInFocus'])
 
     const dataStore = useDataStore()
     const selectedItemStore = useSelectedItemStore()
     const { updateSelectedItem } = selectedItemStore
-    const entity = ref("")
-    const host = ref("")
-    const event = ref("")
-    const search = defineModel<string>({ required: true })
+    const { 
+        getFilteredHostOptions, 
+        getFilteredEntityOptions, 
+        getFilteredEventOptions, 
+        getEntityByName, 
+        getEntityById,
+        getEventById,
+        getHostById,
+        getHostByName,
+        getLatestEventFromHost 
+    } = dataStore
+    const search = defineModel<string>()
     const { selectedItem } = storeToRefs(selectedItemStore)
     
-    //TODO:
-    /*
-        - Search by name of entity, host, or event
-        - Display associated entities, hosts, and events
-        - When a search result is selected, select the entity, host, and event
-    */
-    // watch([search, entity, host, event], () => {
+    const entityModel = computed({
+        get: () => selectedItem.value.entity.id,
+        set: (value) => {
+            let entity = getEntityById(value)
+            console.log("entity:", entity)
+        }
+    })
 
-    // })
+    const hostModel = computed({
+        get: () => selectedItem.value.host.id,
+        set: (value) => {
+            let host = getHostById(value)
+            console.log("host:", host)
+        }
+    })
 
-    watch(selectedItem, (newValue) => {
-        console.log('newValue:', newValue)
+    const eventModel = computed({
+        get: () => selectedItem.value.event.id,
+        set: (value) => {
+            let event = getEventById(value)
+            console.log("host:", event)
+        }
+    })
 
-        // TODO: Update available options first -- this is a hack
-        entities.value = [{ value: newValue.entity.id, label: newValue.entity.name }]
-        hosts.value = [{ value: newValue.host.id, label: newValue.host.name }]
-        events.value = [{ value: newValue.event.id, label: newValue.event.full_name }]
+    const entities: Ref<Option[]> = ref([])
+    const hosts: Ref<Option[]> = ref([])
+    const events: Ref<Option[]> = ref([])
 
-        // Then set the selected values
-        entity.value = newValue.entity.id
-        host.value = newValue.host.id
-        event.value = newValue.event.id
+    watch(() => dataStore.initialDataLoaded, (newValue, oldValue) => {
+        if(newValue) {
+            entities.value = getFilteredEntityOptions()
+            hosts.value = getFilteredHostOptions()
+            events.value = getFilteredEventOptions()
+
+            const entity = getEntityByName("Brooksee")
+            const host = getHostByName("REVEL Big Cottonwood")
+            const event = getLatestEventFromHost(host.id)
+            updateSelectedItem(entity, host, event)
+        }
+    }, { once: true })
+
+    watch(selectedItem, (newValue, oldValue) => {
+        if(newValue.entity !== oldValue.entity)  {
+            //update associated hosts and events
+
+        } else if( newValue.host !== oldValue.host) {
+            //update associated events
+        }
     })
 
     watch(search, (newValue, oldValue) => {
-        if(newValue.length === 0) {
+        if(newValue && newValue.length === 0) {
             dataStore.turnOffSearchMode()
         }
     })
 
     const handleKeyPress = (event: KeyboardEvent) => {
         if (event.key === "Enter") {
-            dataStore.setFilter(search.value)
+            dataStore.setFilter(search.value || '')
         }
     }
-
-    //TODO: Write the computed properties so that 
-    // when the search is triggered, the entities, hosts, and events are filtered
-    // const entities = computed<Option[]>(() => {
-    //     return []
-    // })
-    // const hosts = computed<Option[]>(() => {
-    //     return []
-    // })
-    // const events = computed<Option[]>(() => {
-    //     return []
-    // })
-
-    const entities: Ref<Option[]> = ref([])
-    const hosts: Ref<Option[]> = ref([])
-    const events: Ref<Option[]> = ref([])
 </script>
 <template>
         <div class="search">
@@ -90,35 +106,26 @@
             </div>
     
             <div class="selects">
-                <div class="select-container">
-                    <select v-model="entity">
-                        <option value="" disabled selected class="placeholder">Select an Entity</option>
-                        <option v-for="item in entities" :key="item.value" :value="item.value">
-                            {{ item.label }}
-                        </option>
-                    </select>
-                    <p class="select-label">ENTITY</p>
-                </div>
-        
-                <div class="select-container">
-                    <select v-model="host">
-                        <option value="" disabled selected class="placeholder">Select a Host</option>
-                        <option v-for="item in hosts" :key="item.value" :value="item.value">
-                            {{ item.label }}
-                        </option>
-                    </select>
-                    <p class="select-label">HOST</p>
-                </div>
-        
-                <div class="select-container">
-                    <select v-model="event">
-                        <option value="" disabled selected class="placeholder">Select an Event</option>
-                        <option v-for="item in events" :key="item.value" :value="item.value">
-                            {{ item.label }}
-                        </option>
-                    </select>
-                    <p class="select-label">EVENT</p>
-                </div>
+                <SearchBarFilterSelect
+                    v-model="entityModel"
+                    placeholder="Select an Entity"
+                    :items="entities"
+                    label="ENTITY"
+                />
+
+                <SearchBarFilterSelect
+                    v-model="hostModel"
+                    placeholder="Select a Host"
+                    :items="hosts"
+                    label="HOST"
+                />
+
+                <SearchBarFilterSelect
+                    v-model="eventModel"
+                    placeholder="Select an Event"
+                    :items="events"
+                    label="EVENT"
+                />
             </div>
         </div>
 </template>
@@ -163,26 +170,10 @@
     }
     .selects {
         display: flex;
-        gap: 25px;
+        gap: 10px;
         margin-left: 25px;
         justify-content: flex-start;
-    }
-    .select-container {
-        display: flex;
-        flex-direction: column;
-    }
-    .select-label {
-        text-transform: uppercase;
-        color: var(--color1);
-        font-size: 0.7rem;
-        font-weight: bold;
-        margin-left: 4px;
-    }
-    select {
-        border: none;
-        outline: none;
-        background-color: white;
-        padding: 4px 8px 4px 0;
+        
     }
     @media only screen and (max-width: 1180px){
         .search {

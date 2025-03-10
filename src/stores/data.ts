@@ -1,5 +1,6 @@
 import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import { useSelectedItemStore } from './selected'
 import type { Host } from '@/types/host'
 import type { Event } from '@/types/event'
 import type { Entity } from '@/types/entity'
@@ -11,6 +12,8 @@ export const useDataStore = defineStore('data', () => {
   const searchFilter = ref('')
   const inSearchMode = ref(false)
   const loading = ref(false)
+  const initialDataLoaded = ref(false)
+  const { selectedItem } = useSelectedItemStore()
 
   // Fetch data from JSON file and populate combinedOriginalData
   const fetchData = async () => {
@@ -18,6 +21,7 @@ export const useDataStore = defineStore('data', () => {
       const basePath = import.meta.env.BASE_URL
       const response = await fetch(`${ basePath }Brooksee4.json`)
       data.value = await response.json()
+      initialDataLoaded.value = true
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -68,7 +72,7 @@ export const useDataStore = defineStore('data', () => {
     let hostsNotAlreadyInSearchResults = []
 
     for(let event of events){
-      let host = getHostFromId(event.host_id)
+      let host = getHostById(event.host_id)
       if(host){
         hostsNotAlreadyInSearchResults.push(host)
       }
@@ -91,12 +95,24 @@ export const useDataStore = defineStore('data', () => {
     )
   }
   
+  watch(selectedItem, (newValue, oldValue) => {
+    if(newValue.entity !== oldValue.entity)  {
+      //update associated hosts and events
+      
+    } else if( newValue.host !== oldValue.host) {
+      //update associated events
+    }
+  })
 
   watch(searchFilter, (newValue, oldValue) => {
     if(newValue !== oldValue){
       filterSearchResults(newValue)
     }
   })
+
+  function filterFromSelectOption(){
+
+  }
 
   const setFilter = (filter: string) => {
     searchFilter.value = filter.trim()
@@ -108,18 +124,46 @@ export const useDataStore = defineStore('data', () => {
     inSearchMode.value  = !inSearchMode.value
   }
 
-  function getHostFromId(hostId: string): Host {
+  function getHostById(hostId: number): Host {
     return data.value.hosts
             .find(host => host.id === hostId)
   }
 
-  function getLatestEventFromHost(hostId: string): Event {
+  function getEventById(eventId: number): Event {
+    return data.value.events
+            .find(event => event.id === eventId)
+  }
+
+  function getEntityById(entityId: number): Entity {
+    return data.value.entities
+            .find(entity => entity.id === entityId)
+  }
+
+  function getEntityByName(name: string) {
+    return data.value.entities
+            .find(entity => entity.name === name)
+  }
+
+  function getHostByName(name: string) {
+    return data.value.hosts
+            .find(host => host.name === name)
+  }
+
+  function getFirstAlphabeticalHostInEntity(entityId: number) {
+    const hosts = data.value.hosts
+      .filter(host => host.entity_id === entityId)
+      .sort((a, b) => a.name.localeCompare(b.name)) // Alphabetical sorting
+    return hosts[0] || null // Return the first host or null if no hosts found
+  }
+  
+
+  function getLatestEventFromHost(hostId: number): Event {
     return data.value.events
             .filter(event => event.host_id === hostId)
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] || null
   }
 
-  function getFilteredEntities(){
+  function getFilteredEntityOptions(){
     if(filteredSearchData.value.length){
       return filteredSearchData.value.map(item => item.entity)
     }
@@ -132,42 +176,53 @@ export const useDataStore = defineStore('data', () => {
             .sort((a,b) => a.label.localeCompare(b.label))
   }
 
-  function getFilteredItems<T>(
+  function getFilteredItems<T, K extends keyof { hosts: Host[]; events: Event[] }>(
     filteredData: typeof filteredSearchData.value, 
     originalData: T[], 
-    key: keyof { hosts: Host[]; events: Event[] },
+    key: K,
     valueKey: keyof T,
     labelKey: keyof T
-  ) {
+  ): { value: string; label: string }[] {
+    
     if (filteredData.length) {
       return filteredData.flatMap(item =>
         item[key].map(subItem => ({
-          value: subItem[valueKey],
-          label: subItem[labelKey]
+          value: subItem[valueKey] as string, 
+          label: subItem[labelKey] as string
         }))
       )
     }
   
-    return originalData.map(item => ({
-      value: item[valueKey],
-      label: item[labelKey]
-    }))
+    return originalData
+      .map(item => ({
+        value: item[valueKey] as string,
+        label: item[labelKey] as string
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label))
   }
   
-  const getFilteredHosts = () => getFilteredItems(filteredSearchData.value, data.value.hosts, "hosts", "id", "name")
+  const getFilteredHostOptions = () => getFilteredItems(filteredSearchData.value, data.value.hosts, "hosts", "id", "name")
   
-  const getFilteredEvents = () => getFilteredItems(filteredSearchData.value, data.value.events, "events", "id", "name")
-  
+  const getFilteredEventOptions = () => getFilteredItems(filteredSearchData.value, data.value.events, "events", "id", "full_name")
 
   return { 
-    loading,
     filteredSearchData,
+    initialDataLoaded,
     inSearchMode,
-    turnOffSearchMode,
+    loading,
     clearSearchResults,
     fetchData,
+    getEntityById,
+    getEventById,
+    getEntityByName,
+    getFilteredEntityOptions,
+    getFilteredEventOptions,
+    getFilteredHostOptions,
+    getFirstAlphabeticalHostInEntity,
+    getHostById,
+    getHostByName,
+    getLatestEventFromHost,
     setFilter,
-    getHostFromId,
-    getLatestEventFromHost
+    turnOffSearchMode
   }
 })

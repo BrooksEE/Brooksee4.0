@@ -18,19 +18,19 @@
     }>()
 
     const { updateSelectedItem } = useSelectedItemStore()
-    const { getHostFromId, getLatestEventFromHost } = useDataStore()
+    const { getHostById, getLatestEventFromHost } = useDataStore()
     function formatEventName(event: Event) {
         return `${ new Date(event.date).getFullYear() } - ${ event.name }`
     }
 
     function getEventHostName(event: Event){
-        let host = getHostFromId(event.host_id)
+        let host = getHostById(event.host_id)
         return host ? host.name : ''
     }
 
     function handleEventClick(event: Event){
         console.log("selected event:", event)
-        let host = getHostFromId(event.host_id)
+        let host = getHostById(event.host_id)
         console.log('host:', host)
         updateSelectedItem(props.data.entity, host, event)
     }
