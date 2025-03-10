@@ -55,4 +55,9 @@
             0px -2px 4px rgba(0, 0, 0, 0.05);
         padding: 10px 20px;
     }
+    @media only screen and (max-width: 1180px) {
+        .results-container {
+            top: 14vh;
+        }
+    }
 </style>
