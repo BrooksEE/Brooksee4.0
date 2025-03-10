@@ -58,7 +58,7 @@
     }
     @media only screen and (max-width: 1180px) {
         header {
-            height: auto;
+            height: 15vh;
             padding: 10px;
         }
     }
@@ -67,6 +67,7 @@
             flex-grow: 1;
         }
         header {
+            height: auto;
             flex-direction: column;
         }
     }
