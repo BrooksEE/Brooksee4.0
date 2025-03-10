@@ -58,7 +58,7 @@
     .icon-label {
         color: white;
         text-align: center;
-        font-size: 10px;
+        font-size: 0.6rem;
         font-weight: bold;
     }
     .sidebar-item:hover .icon-label, .sidebar-item.active .icon-label {

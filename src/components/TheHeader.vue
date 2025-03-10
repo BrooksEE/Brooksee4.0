@@ -24,7 +24,7 @@
         display: flex;
         align-items: center;
         height: 10vh;
-        width: 100vw;
+        width: 100%;
         padding: 20px 10px;
         position: relative;
         background-image: url(https://brookseeevents.s3.amazonaws.com/bee/2023/albums/Brooksee%20Icon%20Pattern3_web.png);
@@ -49,5 +49,20 @@
     .separator {
         width: 100%;
         border-bottom: 1px solid var(--separator-color);
+    }
+
+    @media only screen and (max-width: 1300px){
+        .logo-container {
+            position: relative;
+        }
+    }
+    @media only screen and (max-width: 1000px) {
+        header {
+            height: auto;
+            padding: 10px;
+        }
+        .search-bar-container {
+            padding: 0;
+        }
     }
 </style>

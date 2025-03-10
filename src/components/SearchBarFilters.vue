@@ -133,11 +133,22 @@
         box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
         position: relative;
         z-index: 2;
+        width: auto;
+        max-width: 100%;
+        min-width: 500px;
+        justify-content: flex-start;
     }
     .text-search-container {
         display: flex;
         align-items: center;
         position: relative;
+        flex-grow: 1; 
+        min-width: 215px; 
+    }
+    .text-search {
+        width: 100%;
+        max-width: 215px;
+        min-width: 200px;
     }
     .text-search:focus {
         outline: 1px solid var(--color2);
@@ -154,6 +165,7 @@
         display: flex;
         gap: 25px;
         margin-left: 25px;
+        justify-content: flex-start;
     }
     .select-container {
         display: flex;
@@ -171,5 +183,18 @@
         outline: none;
         background-color: white;
         padding: 4px 8px 4px 0;
+    }
+    @media only screen and (max-width: 1000px){
+        .search {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .text-search {
+            max-width: 100%;
+        }
+        .selects {
+            margin-left: 0;
+        }
+
     }
 </style>
