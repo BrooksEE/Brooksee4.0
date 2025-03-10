@@ -62,7 +62,12 @@
             padding: 10px;
         }
         .search-bar-container {
-            padding: 0;
+            flex-grow: 1;
+        }
+    }
+    @media only screen and (max-width: 850px) {
+        header {
+            flex-direction: column;
         }
     }
 </style>

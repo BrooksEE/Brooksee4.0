@@ -82,4 +82,12 @@
             border-color: rgba(0, 0, 0, 0.1);
         }
     }
+
+    @media screen only and (max-width: 1000px) {
+        .recent-list {
+            gap: 5px;
+            padding: 0;
+            justify-content: center;
+        }
+    }
 </style>

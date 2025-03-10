@@ -188,6 +188,8 @@
         .search {
             flex-direction: column;
             gap: 10px;
+            width: 100%;
+            min-width: 600px;
         }
         .text-search {
             max-width: 100%;
@@ -195,6 +197,10 @@
         .selects {
             margin-left: 0;
         }
-
+    }
+    @media only screen and (max-width: 870px) {
+        .search {
+            min-width: 100%;
+        }
     }
 </style>
