@@ -184,7 +184,7 @@
         background-color: white;
         padding: 4px 8px 4px 0;
     }
-    @media only screen and (max-width: 1000px){
+    @media only screen and (max-width: 1200px){
         .search {
             flex-direction: column;
             gap: 10px;
