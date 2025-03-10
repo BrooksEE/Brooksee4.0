@@ -1,10 +1,12 @@
 import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import type { Host } from '@/types/host'
 import type { Event } from '@/types/event'
+import type { Entity } from '@/types/entity'
 
 //TODO: Not sure what to name this yet....
 export const useDataStore = defineStore('data', () => {
-  const combinedOriginalData = ref<{ entity: any; hosts: any[]; events: any[] }[]>([])
+  const data = ref<{ entities: any[]; hosts: any[]; events: any[] }>({ entities: [], hosts: [], events: [] })
   const filteredSearchData = ref<{ entity: any; hosts: any[]; events: any[] }[]>([])
   const searchFilter = ref('')
   const inSearchMode = ref(false)
@@ -13,48 +15,12 @@ export const useDataStore = defineStore('data', () => {
   // Fetch data from JSON file and populate combinedOriginalData
   const fetchData = async () => {
     try {
-      const basePath = import.meta.env.BASE_URL;
+      const basePath = import.meta.env.BASE_URL
       const response = await fetch(`${ basePath }Brooksee4.json`)
-      const data = await response.json()
-      console.log("original data:", data)
-      combinedOriginalData.value = mergeData(data.entities, data.hosts, data.events)
+      data.value = await response.json()
     } catch (error) {
       console.error('Error fetching data:', error)
     }
-  }
-
-  // Internal function to merge entities, hosts, and events
-  function mergeData(entities: Entity[], hosts: Host[], events: Event[]) {
-    const entityMap = new Map(entities.map(entity => [entity.id, entity]))
-  
-    // Create a map for hosts, associating them with their entities
-    const hostMap = new Map(hosts.map(host => [host.id, { ...host, entity: entityMap.get(host.entity_id) }]))
-  
-    // Create a map for the result, where each key is an entity, and its value is an object with hosts and events
-    const resultMap = new Map<number, { entity: Entity, hosts: Host[], events: Event[] }>()
-  
-    // Build the resultMap
-    events.forEach(event => {
-      const host = hostMap.get(event.host_id)
-  
-      if (host && host.entity) {
-        // If the entity exists in resultMap, add the host and event, otherwise create a new entry
-        const existingEntity = resultMap.get(host.entity.id)
-        
-        if (existingEntity) {
-          existingEntity.hosts.push(host)
-          existingEntity.events.push(event)
-        } else {
-          resultMap.set(host.entity.id, {
-            entity: host.entity,
-            hosts: [host],
-            events: [event]
-          })
-        }
-      }
-    })
-  
-    return Array.from(resultMap.values())
   }
 
   function isMatchingYear(date: string, searchValue: string) {
@@ -74,25 +40,26 @@ export const useDataStore = defineStore('data', () => {
     // each with matching hosts and/or events based on the search value. 
     // If no hosts or events match, only the entity is included. 
     // Entities with no matches are excluded.
-    combinedOriginalData.value.forEach(item => {
-      const matchingHosts = filterHosts(item.hosts, filter)
-      const matchingEvents = filterEvents(item.events, filter)
-      const hostsFromEvents = gatherHostsFromEvents(matchingEvents)
 
-      const combinedHosts = [...matchingHosts, ...hostsFromEvents]
-        .filter((host, index, self) => 
-          index === self.findIndex(h => h.id === host.id) // Remove duplicates based on `id`
-        )
-        .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically by name
-    
-      
-      if (combinedHosts.length || matchingEvents.length) {
-        filteredSearchData.value.push({ ...item, hosts: matchingHosts, events: matchingEvents })
-      } else if (item.entity.name.toLowerCase().startsWith(filter)) {
-        filteredSearchData.value.push({ ...item, hosts: [], events: [] })
+    filteredSearchData.value = data.value.entities
+    .map(entity => {
+      const matchingHosts = filterHosts(data.value.hosts, filter, entity.id)
+      const matchingEvents = filterEvents(data.value.events, filter, entity.id)
+  
+      if (matchingHosts.length || matchingEvents.length) {
+        return { entity, hosts: matchingHosts, events: matchingEvents }
       }
+  
+      if (entity.name.toLowerCase().startsWith(filter.toLowerCase())) {
+        return { entity, hosts: [], events: [] }
+      }
+  
+      return null // Exclude entities that don't match any filter
     })
-    filteredSearchData.value.sort((a, b) => a.entity.name.localeCompare(b.entity.name))
+    .filter((item): item is { entity: Entity; hosts: any[]; events: any[] } => item !== null)
+    .sort((a, b) => a.entity.name.localeCompare(b.entity.name))
+    console.log("filteredSearchData:", filteredSearchData)
+    
     
     loading.value = false
   }
@@ -109,24 +76,21 @@ export const useDataStore = defineStore('data', () => {
     }
     return hostsNotAlreadyInSearchResults
   }
-  
-  function filterHosts(hosts: any[], filter: string) {
-    return hosts
-      .filter((host, index, self) => self.findIndex(h => h.name.toLowerCase() === host.name.toLowerCase()) === index)
-      .filter(host => host.name.toLowerCase().startsWith(filter))
-      .sort((a, b) => a.name.localeCompare(b.name))
+
+  function filterHosts(hosts: any[], filter: string, entityId: number) {
+    return hosts.filter(host => 
+      host.entity_id === entityId &&
+      host.name.toLowerCase().includes(filter.toLowerCase())
+    )
   }
   
-  function filterEvents(events: any[], filter: string) {
-    return events
-      .filter(event => event.name.toLowerCase().startsWith(filter) || isMatchingYear(event.date, filter))
-      .sort((a, b) => {
-        const yearA = new Date(a.date).getFullYear()
-        const yearB = new Date(b.date).getFullYear()
-        if (yearA !== yearB) return yearB - yearA
-        return a.name.localeCompare(b.name)
-      })
+  function filterEvents(events: any[], filter: string, entityId: number) {
+    return events.filter(event => 
+      event.entity_id === entityId &&
+      event.name.toLowerCase().includes(filter.toLowerCase())
+    )
   }
+  
 
   watch(searchFilter, (newValue, oldValue) => {
     if(newValue !== oldValue){
@@ -144,35 +108,13 @@ export const useDataStore = defineStore('data', () => {
     inSearchMode.value  = !inSearchMode.value
   }
 
-  /*TODO: Add actual types for these in the types folder */
-  interface Entity {
-    id: number;
-    name: string;
-  }
-
-  interface Host {
-    id: string;
-    name: string;
-    entity_id: number;
-    entity?: Entity;
-  }
-
-  interface CombinedData {
-    entity: Entity;
-    hosts: Host[];
-    events: Event[];
-  }
-
-  //TODO: is it better to keep it as a flat structure?
   function getHostFromId(hostId: string): Host {
-    return combinedOriginalData.value
-            .flatMap(data => data.hosts)
+    return data.value.hosts
             .find(host => host.id === hostId)
   }
 
   function getLatestEventFromHost(hostId: string): Event {
-    return combinedOriginalData.value
-            .flatMap(data => data.events)
+    return data.value.events
             .filter(event => event.host_id === hostId)
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] || null
   }
@@ -182,45 +124,40 @@ export const useDataStore = defineStore('data', () => {
       return filteredSearchData.value.map(item => item.entity)
     }
 
-    return []
-    // return combinedOriginalData.value.flatMap(item => 
-    //   item.entity.map(entity => ({
-    //     value: entity.id, 
-    //     label: entity.name
-    //   }))
-    // )
+    return data.value.entities
+            .map(entity => ({
+              value: entity.id, 
+              label: entity.name
+            }))
+            .sort((a,b) => a.label.localeCompare(b.label))
   }
 
-  function getFilteredHosts(){
-    if(filteredSearchData.value.length){
-      return filteredSearchData.value.flatMap(item => 
-        item.hosts.map(host => ({
-            value: host.id, 
-            label: host.name
+  function getFilteredItems<T>(
+    filteredData: typeof filteredSearchData.value, 
+    originalData: T[], 
+    key: keyof { hosts: Host[]; events: Event[] },
+    valueKey: keyof T,
+    labelKey: keyof T
+  ) {
+    if (filteredData.length) {
+      return filteredData.flatMap(item =>
+        item[key].map(subItem => ({
+          value: subItem[valueKey],
+          label: subItem[labelKey]
         }))
       )
     }
-    
-    return combinedOriginalData.value.flatMap(item => 
-      item.hosts.map(host => ({
-          value: host.id, 
-          label: host.name
-      }))
-    )
+  
+    return originalData.map(item => ({
+      value: item[valueKey],
+      label: item[labelKey]
+    }))
   }
-
-  function getFilteredEvents(){
-    if(filteredSearchData.value.length){
-      return filteredSearchData.value.map(item => item.entity)
-    }
-
-    return combinedOriginalData.value.flatMap(item => 
-      item.events.map(event => ({
-          value: event.id, 
-          label: event.full_name
-      }))
-    )
-  }
+  
+  const getFilteredHosts = () => getFilteredItems(filteredSearchData.value, data.value.hosts, "hosts", "id", "name")
+  
+  const getFilteredEvents = () => getFilteredItems(filteredSearchData.value, data.value.events, "events", "id", "name")
+  
 
   return { 
     loading,
