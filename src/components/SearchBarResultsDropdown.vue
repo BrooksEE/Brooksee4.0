@@ -9,11 +9,11 @@
     defineEmits(['close'])
 
     const dataStore = useDataStore()
-    const { filteredSearchData } = storeToRefs(dataStore)
+    const { inSearchMode } = storeToRefs(dataStore)
 
-    watch(filteredSearchData, (newValue, oldValue) => {
-            console.log("filteredSEarchData length:", newValue.length)
-    }, { deep: true })
+    watch(inSearchMode, (newValue, oldValue) => {
+        console.log("in search mode change:", newValue)
+    })
 </script>
 
 <template>
@@ -22,10 +22,8 @@
             <div class="close">
                 <CloseX @click="$emit('close')"/>
             </div>
-            <SearchBarRecents 
-                v-if="filteredSearchData.length === 0 || !dataStore.inSearchMode" 
-            />
-            <SearchBarResults v-if="dataStore.inSearchMode"/>
+            <SearchBarResults v-if="inSearchMode"/>
+            <SearchBarRecents v-else />
         </div>
     </div>
 </template>

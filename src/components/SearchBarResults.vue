@@ -24,8 +24,8 @@
     <SearchBarResultsSection :title="'Results'">
         <template #content>
             <div class="results">
-                <!-- <p v-if="loading">Loading....</p> -->
-                <!-- <template v-else> -->
+                <p v-if="loading">Loading....</p>
+                <template v-else>
                     <template v-if="searchData.length > 0">
                         <div class="search-results">
                             <SearchResultItem 
@@ -38,7 +38,7 @@
                     <p v-else-if="searchData.length === 0" class="no-match">
                         No results match this search....
                     </p>
-                <!-- </template> -->
+                </template>
             </div>
         </template>
     </SearchBarResultsSection>

@@ -28,7 +28,6 @@ export const useSelectedItemStore = defineStore('selected', () => {
       }
 
       selectedItem.value = { entity, host, event }
-      console.log("selectedItem:", selectedItem.value)
     }   
 
     return {

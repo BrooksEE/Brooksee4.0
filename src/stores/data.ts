@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref, watch, type HydrationStrategy } from 'vue'
 import { defineStore } from 'pinia'
 import { useSelectedItemStore } from './selected'
 import type { Host } from '@/types/host'
@@ -46,24 +46,23 @@ export const useDataStore = defineStore('data', () => {
     // Entities with no matches are excluded.
 
     filteredSearchData.value = data.value.entities
-    .map(entity => {
-      const matchingHosts = filterHosts(data.value.hosts, filter, entity.id)
-      const matchingEvents = filterEvents(data.value.events, filter, entity.id)
-  
-      if (matchingHosts.length || matchingEvents.length) {
-        return { entity, hosts: matchingHosts, events: matchingEvents }
-      }
-  
-      if (entity.name.toLowerCase().startsWith(filter.toLowerCase())) {
-        return { entity, hosts: [], events: [] }
-      }
-  
-      return null // Exclude entities that don't match any filter
-    })
-    .filter((item): item is { entity: Entity; hosts: any[]; events: any[] } => item !== null)
-    .sort((a, b) => a.entity.name.localeCompare(b.entity.name))
-    console.log("filteredSearchData:", filteredSearchData)
+      .map(entity => {
+        const matchingHosts = filterHosts(data.value.hosts, filter, entity.id)
+        const matchingEvents = filterEvents(data.value.events, filter, entity.id)
     
+        if (matchingHosts.length || matchingEvents.length) {
+          return { entity, hosts: matchingHosts, events: matchingEvents }
+        }
+    
+        if (entity.name.toLowerCase().startsWith(filter.toLowerCase())) {
+          return { entity, hosts: [], events: [] }
+        }
+    
+        return null // Exclude entities that don't match any filter
+      })
+      .filter((item): item is { entity: Entity; hosts: Host[]; events: Event[] } => item !== null)
+      .sort((a, b) => a.entity.name.localeCompare(b.entity.name))
+    console.log('filteredSearchData:', filteredSearchData.value)
     
     loading.value = false
   }
@@ -81,18 +80,26 @@ export const useDataStore = defineStore('data', () => {
     return hostsNotAlreadyInSearchResults
   }
 
-  function filterHosts(hosts: any[], filter: string, entityId: number) {
-    return hosts.filter(host => 
-      host.entity_id === entityId &&
-      host.name.toLowerCase().includes(filter.toLowerCase())
-    )
+  function filterHosts(hosts: Host[], filter: string, entityId: number) {
+    return hosts
+            .filter(host => 
+              host.entity_id === entityId &&
+              host.name.toLowerCase().includes(filter.toLowerCase())
+            )
+            .sort((a, b) => a.name.localeCompare(b.name))
+
   }
   
-  function filterEvents(events: any[], filter: string, entityId: number) {
-    return events.filter(event => 
-      event.entity_id === entityId &&
-      event.name.toLowerCase().includes(filter.toLowerCase())
-    )
+  function filterEvents(events: Event[], filter: string, entityId: number) {
+    return events
+            .filter(event => {
+              const host = getHostById(event.host_id)
+              return host?.entity_id === entityId 
+                    && host.name.toLocaleLowerCase() !== "discard"
+                    && event.full_name
+                    && event.full_name.toLowerCase().includes(filter.toLowerCase())
+            })  
+            .sort((a, b) => b.full_name.localeCompare(a.full_name))
   }
 
   watch(searchFilter, (newValue, oldValue) => {
@@ -101,18 +108,14 @@ export const useDataStore = defineStore('data', () => {
     }
   })
 
-  function filterFromSelectOption(){
-
-  }
-
   function setFilter(filter: string){
     searchFilter.value = filter.trim()
     inSearchMode.value = true
-    console.log("search filter is set to:", searchFilter.value)
+    console.log("****************************\n\n")
   }
 
   const turnOffSearchMode = () => {
-    inSearchMode.value  = !inSearchMode.value
+    inSearchMode.value  = false
   }
 
   function getHostById(hostId: number): Host {
@@ -187,7 +190,6 @@ export const useDataStore = defineStore('data', () => {
     }
     
     else if(selectedItemStore.selectedItem.entity.id !== -1){
-      console.log('here with key:', key)
       return filterByEntityOrHost(originalData, key)
       .map(item => ({
         value: item[valueKey] as string,
@@ -207,17 +209,12 @@ export const useDataStore = defineStore('data', () => {
   }
 
   function filterByEntityOrHost<T>(data: T[], key: string): T[] {
-    console.log("key:", key)
     if (key === "hosts") {
-      console.log("entity id:", selectedItemStore.selectedItem.entity.id)
       let hosts = data.filter(item => (item as Host).entity_id === selectedItemStore.selectedItem.entity.id)
-      console.log(`returning ${ key }:`, hosts)
       return hosts
     }
     if (key === "events") {
-      console.log("host id:", selectedItemStore.selectedItem.host.id)
       let events = data.filter(item => (item as Event).host_id === selectedItemStore.selectedItem.host.id)
-      console.log(`returning ${ key }:`, events)
       return events
     }
 
@@ -228,7 +225,10 @@ export const useDataStore = defineStore('data', () => {
     let host = getHostById(event.host_id)
     return host ? host.name : ''
   }
-  
+
+  function formatEventName(event: Event) {
+    return `${ event.full_name }`
+  }
   
   const getFilteredHostOptions = () => getFilteredItems(filteredSearchData.value, data.value.hosts, "hosts", "id", "name")
   
@@ -241,6 +241,7 @@ export const useDataStore = defineStore('data', () => {
     loading,
     clearSearchResults,
     fetchData,
+    formatEventName,
     getEntityById,
     getEventById,
     getEventHostName,

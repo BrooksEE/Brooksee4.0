@@ -20,12 +20,8 @@
         getHostById, 
         getLatestEventFromHost, 
         getEventHostName, 
-        clearSearchResults 
+        clearSearchResults,
     } = useDataStore()
-    
-    function formatEventName(event: Event) {
-        return `${ new Date(event.date).getFullYear() } - ${ event.name }`
-    }
 
     const handleEntityClick = () => {
         console.log("selected entity:", props.data.entity)
@@ -70,7 +66,7 @@
                 <div @click="handleEventClick(event)" class="event">
                     <div class="event-data">
                         <div>
-                            <span class="event-icon">🏆</span> {{ formatEventName(event) }} 
+                            <span class="event-icon">🏆</span> {{ event.full_name }} 
                         </div>
                         <span class="event-host">Host: {{ getEventHostName(event) }}</span>
                     </div>
