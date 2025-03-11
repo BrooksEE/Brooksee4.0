@@ -1,5 +1,4 @@
 <script setup lang="ts">
-    import { defineProps, ref } from 'vue';
     import { useSelectedItemStore } from '@/stores/selected';
     import { useDataStore } from '@/stores/data';
     import type { Event } from '@/types/event';
@@ -19,7 +18,6 @@
     const { updateSelectedItem } = useSelectedItemStore()
     const { 
         getHostById, 
-        getEntityById, 
         getLatestEventFromHost, 
         getEventHostName, 
         clearSearchResults 
