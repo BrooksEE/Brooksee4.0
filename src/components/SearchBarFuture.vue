@@ -1,35 +1,35 @@
 <script setup lang="ts">
     import SearchBarResultsSection from './SearchBarResultsSection.vue';
-    const recents = [
+    const future = [
         {
-            src:"https://brookseeevents.s3.amazonaws.com/rag/2024/albums/Logo_Horizontal%20Orange_web.png",
-            title: "Ragnar",
+            src:"https://brookseeevents.s3.amazonaws.com/rwm/2024/albums/RWM-LogoColor_V4_web.png",
+            title: "REVEL White Mountains",
         }, 
         {
-            src:"https://brookseeevents.s3.amazonaws.com/phx/2025/albums/PhoenixMarathonLogo_HorizontalStacked_Color1_web.png",
-            title: "Phoenix Marathon"
+            src:"https://cdn.saffire.com/theme-files/OgdenMarathon/App_Themes/OgdenMarathon/images/logo.png",
+            title: "Ogden Marathon"
         },
         {
-            src:"https://brookseeevents.s3.amazonaws.com/vrz/2025/albums/2025%20Zion%20Half%20Shield_web.png",
-            title: "Zion Half"
+            src:"https://brookseeevents.s3.amazonaws.com/rmc/2022/albums/22-RMC_WebIcon_V2_web.png",
+            title: "REVEL Mt Charleston"
         },
         {
-            src:"https://brookseeevents.s3.amazonaws.com/des/2022/albums/Deseret%20Marathon-03_web.png",
-            title: "Deseret News Marathon"
+            src:"https://brookseeevents.s3.amazonaws.com/ele/2024/albums/EE2024%20logo_web.png",
+            title: "Elevation Everest"
         },
         {
-            src:"https://brookseeevents.s3.amazonaws.com/lvm/2024/albums/Final%20Logo-01_web.jpg",
-            title: "Las Vegas Marathon"
+            src:"https://brookseeevents.s3.amazonaws.com/pdx/2024/albums/Portland%20Marathon%20Logo-01_web.png",
+            title: "Portland Marathon"
         }
     ]
 </script>
 
 <template>
-    <SearchBarResultsSection :title="'Recents'">
+    <SearchBarResultsSection :title="'Future'">
         <template #content>
             <div class="recent-list">
                 <template 
-                    v-for="(item, idx) in recents" 
+                    v-for="(item, idx) in future" 
                     :key="idx" 
                 >
                     <a class="recent-item">

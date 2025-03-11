@@ -25,12 +25,11 @@
     }
     .section-title {
         font-weight: bold;
-        color: var(--color);
+        color: var(--color1);
         text-transform: uppercase;
         padding-left: 10px;
         padding-top: 5px;
     }
-    
     .section-separator {
         height: 1px;
         background-color: #ccc;

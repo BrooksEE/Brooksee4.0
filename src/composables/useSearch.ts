@@ -86,6 +86,11 @@ export function useSearch() {
         }
     })
 
+    const setSearchQuery = () => {
+        console.log('setting search query')
+        dataStore.setFilter(search.value || "")
+    }
+
     function handleKeyPress(event: KeyboardEvent) {
         if (event.key === "Enter") {
             dataStore.setFilter(search.value || '')
@@ -97,14 +102,15 @@ export function useSearch() {
     }
 
     return {
-        search,
         entities,
-        hosts,
-        events,
         entityModel,
-        hostModel,
         eventModel,
+        events,
+        hosts,
+        hostModel,
+        search,
         clearSearchQuery,
-        handleKeyPress
+        handleKeyPress,
+        setSearchQuery
     }
 }

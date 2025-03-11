@@ -3,7 +3,7 @@
     import { useDataStore } from '@/stores/data';
     import { storeToRefs } from 'pinia';
     import CloseX from './icons/X.vue';
-    import SearchBarRecents from './SearchBarRecents.vue';
+    import SearchBarHelp from './SearchBarHelp.vue';
     import SearchBarResults from './SearchBarResults.vue';
 
     defineEmits(['close'])
@@ -11,8 +11,8 @@
     const dataStore = useDataStore()
     const { inSearchMode } = storeToRefs(dataStore)
 
-    watch(inSearchMode, (newValue, oldValue) => {
-        console.log("in search mode change:", newValue)
+    watch(() => dataStore.loading, (newValue, oldValue) => {
+        console.log("loading new value:", newValue)
     })
 </script>
 
@@ -22,8 +22,9 @@
             <div class="close">
                 <CloseX @click="$emit('close')"/>
             </div>
-            <SearchBarResults v-if="inSearchMode"/>
-            <SearchBarRecents v-else />
+            
+            <SearchBarResults v-if="inSearchMode || dataStore.loading"/>
+            <SearchBarHelp v-else />
         </div>
     </div>
 </template>

@@ -1,35 +1,35 @@
 <script setup lang="ts">
     import SearchBarResultsSection from './SearchBarResultsSection.vue';
-    const recents = [
+    const past = [
         {
-            src:"https://brookseeevents.s3.amazonaws.com/rag/2024/albums/Logo_Horizontal%20Orange_web.png",
-            title: "Ragnar",
+            src:"https://brookseeevents.s3.amazonaws.com/spd/2025/albums/shopping_cart_icon_web.png",
+            title: "Spudman",
         }, 
         {
-            src:"https://brookseeevents.s3.amazonaws.com/phx/2025/albums/PhoenixMarathonLogo_HorizontalStacked_Color1_web.png",
-            title: "Phoenix Marathon"
+            src:"https://brookseeevents.s3.amazonaws.com/stg/2024/albums/1a59bbb479331b7503154c7fe66635d00ca1a13f_web.png",
+            title: "St. George Marathon"
         },
         {
-            src:"https://brookseeevents.s3.amazonaws.com/vrz/2025/albums/2025%20Zion%20Half%20Shield_web.png",
-            title: "Zion Half"
+            src:"https://brookseeevents.s3.amazonaws.com/tou/2023/albums/toputcolor_web.jpg",
+            title: "Top of Utah"
         },
         {
-            src:"https://brookseeevents.s3.amazonaws.com/des/2022/albums/Deseret%20Marathon-03_web.png",
-            title: "Deseret News Marathon"
+            src:"https://brookseeevents.s3.amazonaws.com/lpw/2024/albums/lake_powell_web-removebg-preview_web.png",
+            title: "Vaction Races | Lake Powell"
         },
         {
-            src:"https://brookseeevents.s3.amazonaws.com/lvm/2024/albums/Final%20Logo-01_web.jpg",
-            title: "Las Vegas Marathon"
+            src:"https://brookseeevents.s3.amazonaws.com/wep/2023/albums/WE%20%2B%20CSE%20Logo_web.png",
+            title: "Women's Epic Brian Head"
         }
     ]
 </script>
 
 <template>
-    <SearchBarResultsSection :title="'Recents'">
+    <SearchBarResultsSection :title="'Past'">
         <template #content>
             <div class="recent-list">
                 <template 
-                    v-for="(item, idx) in recents" 
+                    v-for="(item, idx) in past" 
                     :key="idx" 
                 >
                     <a class="recent-item">

@@ -19,6 +19,10 @@
         searchData.value = newValue
     }, { deep: true, immediate: true })
 
+    watch(()=> dataStore.loading, (newValue, oldValue) => {
+        console.log("loading:", newValue)
+    }, { immediate: true })
+
 </script>
 <template>
     <SearchBarResultsSection :title="'Results'">

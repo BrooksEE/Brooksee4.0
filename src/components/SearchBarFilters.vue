@@ -13,48 +13,49 @@
         entityModel, 
         hostModel, 
         eventModel, 
-        handleKeyPress 
+        handleKeyPress,
+        setSearchQuery,
     } = useSearch()
 </script>
 <template>
-        <div class="search">
-            <div class="text-search-container">
-                <div class="magnifying-glass">
-                    <MagnifyingGlass />
-                </div>
-                <input 
-                    class="text-search" 
-                    type="text" 
-                    v-model="search" 
-                    placeholder="SEARCH" 
-                    @keydown.enter="handleKeyPress"
-                    @focus="$emit('searchInFocus')"
-                />
+    <div class="search">
+        <div class="text-search-container">
+            <div class="magnifying-glass">
+                <MagnifyingGlass />
             </div>
-    
-            <div class="selects">
-                <SearchBarFilterSelect
-                    v-model="entityModel"
-                    placeholder="Select an Entity"
-                    :items="entities"
-                    label="ENTITY"
-                />
-
-                <SearchBarFilterSelect
-                    v-model="hostModel"
-                    placeholder="Select a Host"
-                    :items="hosts"
-                    label="HOST"
-                />
-
-                <SearchBarFilterSelect
-                    v-model="eventModel"
-                    placeholder="Select an Event"
-                    :items="events"
-                    label="EVENT"
-                />
-            </div>
+            <input 
+                class="text-search" 
+                type="text" 
+                v-model="search" 
+                placeholder="SEARCH" 
+                @keydown.enter="handleKeyPress"
+                @focus="$emit('searchInFocus')"
+            />
         </div>
+
+        <div class="selects">
+            <SearchBarFilterSelect
+                v-model="entityModel"
+                placeholder="Select an Entity"
+                :items="entities"
+                label="ENTITY"
+            />
+
+            <SearchBarFilterSelect
+                v-model="hostModel"
+                placeholder="Select a Host"
+                :items="hosts"
+                label="HOST"
+            />
+
+            <SearchBarFilterSelect
+                v-model="eventModel"
+                placeholder="Select an Event"
+                :items="events"
+                label="EVENT"
+            />
+        </div>
+    </div>
 </template>
 <style scoped>
     .search {

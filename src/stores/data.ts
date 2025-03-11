@@ -38,7 +38,6 @@ export const useDataStore = defineStore('data', () => {
 
   function filterSearchResults(filter: string) {
     filteredSearchData.value = []
-    loading.value = true
 
     // filteredSearchData will contain a list of entities, 
     // each with matching hosts and/or events based on the search value. 
@@ -103,15 +102,18 @@ export const useDataStore = defineStore('data', () => {
   }
 
   watch(searchFilter, (newValue, oldValue) => {
+    console.log("searchFilter:", newValue)
     if(newValue !== oldValue){
+      loading.value = true
+      console.log("loading is true")
       filterSearchResults(newValue)
+      loading.value = false
     }
   })
 
   function setFilter(filter: string){
     searchFilter.value = filter.trim()
     inSearchMode.value = true
-    console.log("****************************\n\n")
   }
 
   const turnOffSearchMode = () => {
