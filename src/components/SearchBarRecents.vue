@@ -3,7 +3,7 @@
     const recents = [
         {
             src:"https://brookseeevents.s3.amazonaws.com/rag/2024/albums/Logo_Horizontal%20Orange_web.png",
-            title: "Ragnar"
+            title: "Ragnar",
         }, 
         {
             src:"https://brookseeevents.s3.amazonaws.com/phx/2025/albums/PhoenixMarathonLogo_HorizontalStacked_Color1_web.png",

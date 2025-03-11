@@ -17,27 +17,37 @@
     }>()
 
     const { updateSelectedItem } = useSelectedItemStore()
-    const { getHostById, getLatestEventFromHost } = useDataStore()
+    const { 
+        getHostById, 
+        getEntityById, 
+        getLatestEventFromHost, 
+        getEventHostName, 
+        clearSearchResults 
+    } = useDataStore()
     
     function formatEventName(event: Event) {
         return `${ new Date(event.date).getFullYear() } - ${ event.name }`
     }
 
-    function getEventHostName(event: Event){
-        let host = getHostById(event.host_id)
-        return host ? host.name : ''
+    const handleEntityClick = () => {
+        console.log("selected entity:", props.data.entity)
+        clearSearchResults()
+        updateSelectedItem(props.data.entity)
     }
 
     function handleEventClick(event: Event){
         console.log("selected event:", event)
         let host = getHostById(event.host_id)
         console.log('host:', host)
+        clearSearchResults()
         updateSelectedItem(props.data.entity, host, event)
     }
 
     function handleHostClick(host: Host){
         console.log('selected host:', host)
         const latestEvent = getLatestEventFromHost(host.id)
+        console.log("latest event:", latestEvent)
+        clearSearchResults()
         updateSelectedItem(props.data.entity, host, latestEvent)
     }
 </script>
@@ -46,7 +56,7 @@
     <div class="result-item">
         <div class="entity-container">
             <ChevronsRight class="chevrons"/>
-            <p class="entity">{{ data.entity.name }}</p>
+            <p class="entity" @click="handleEntityClick">{{ data.entity.name }}</p>
         </div>
 
         <div v-if="data.hosts.length > 0" class="hosts">
@@ -98,12 +108,13 @@
         font-size: 1.1rem;
         color: var(--primary-color);
     }
-
+    .entity:hover {
+        text-decoration: underline;
+    }
     .hosts, .events {
         padding-left: 15px;
         margin-top: 5px;
     }
-
     .host, .event {
         font-size: 0.95rem;
         color: var(--dark-gray-text);

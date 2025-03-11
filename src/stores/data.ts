@@ -223,6 +223,11 @@ export const useDataStore = defineStore('data', () => {
 
     return data
   }
+
+  function getEventHostName(event: Event){
+    let host = getHostById(event.host_id)
+    return host ? host.name : ''
+  }
   
   
   const getFilteredHostOptions = () => getFilteredItems(filteredSearchData.value, data.value.hosts, "hosts", "id", "name")
@@ -238,6 +243,7 @@ export const useDataStore = defineStore('data', () => {
     fetchData,
     getEntityById,
     getEventById,
+    getEventHostName,
     getEntityByName,
     getFilteredEntityOptions,
     getFilteredEventOptions,

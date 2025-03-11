@@ -63,6 +63,8 @@ export function useSearch() {
         if (newValue.host !== oldValue.host) {
             events.value = getFilteredEventOptions()
         }
+
+        search.value = ""
     })
 
     watch(initialDataLoaded, (newValue) => {
@@ -90,6 +92,10 @@ export function useSearch() {
         }
     }
 
+    function clearSearchQuery(){
+        search.value = ""
+    }
+
     return {
         search,
         entities,
@@ -98,6 +104,7 @@ export function useSearch() {
         entityModel,
         hostModel,
         eventModel,
+        clearSearchQuery,
         handleKeyPress
     }
 }
