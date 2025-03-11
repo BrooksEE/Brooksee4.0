@@ -1,4 +1,5 @@
 export interface Entity {
-    id: number
+    id: number,
+    info_email: string,
     name: string
 }
