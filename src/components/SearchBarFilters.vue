@@ -1,93 +1,20 @@
 <script setup lang="ts">
-    import { ref, watch, computed, type Ref } from "vue";
-    import { storeToRefs } from "pinia";
-    import { useDataStore } from '@/stores/data';
-    import { useSelectedItemStore } from '@/stores/selected';
-    import { defineModel } from 'vue';
     import MagnifyingGlass from "./icons/MagnifyingGlass.vue";
     import SearchBarFilterSelect from "./SearchBarFilterSelect.vue";
-    import type { Option } from "@/types/option";
+    import { useSearch } from "@/composables/useSearch";
 
     defineEmits(['searchInFocus'])
 
-    const dataStore = useDataStore()
-    const selectedItemStore = useSelectedItemStore()
-    const { updateSelectedItem } = selectedItemStore
     const { 
-        getFilteredHostOptions, 
-        getFilteredEntityOptions, 
-        getFilteredEventOptions, 
-        getEntityByName, 
-        getEntityById,
-        getEventById,
-        getHostById,
-        getHostByName,
-        getLatestEventFromHost 
-    } = dataStore
-    const search = defineModel<string>()
-    const { selectedItem } = storeToRefs(selectedItemStore)
-    
-    const entityModel = computed({
-        get: () => selectedItem.value.entity.id,
-        set: (value) => {
-            let entity = getEntityById(value)
-            console.log("entity:", entity)
-        }
-    })
-
-    const hostModel = computed({
-        get: () => selectedItem.value.host.id,
-        set: (value) => {
-            let host = getHostById(value)
-            console.log("host:", host)
-        }
-    })
-
-    const eventModel = computed({
-        get: () => selectedItem.value.event.id,
-        set: (value) => {
-            let event = getEventById(value)
-            console.log("host:", event)
-        }
-    })
-
-    const entities: Ref<Option[]> = ref([])
-    const hosts: Ref<Option[]> = ref([])
-    const events: Ref<Option[]> = ref([])
-
-    watch(() => dataStore.initialDataLoaded, (newValue, oldValue) => {
-        if(newValue) {
-            entities.value = getFilteredEntityOptions()
-            hosts.value = getFilteredHostOptions()
-            events.value = getFilteredEventOptions()
-
-            const entity = getEntityByName("Brooksee")
-            const host = getHostByName("REVEL Big Cottonwood")
-            const event = getLatestEventFromHost(host.id)
-            updateSelectedItem(entity, host, event)
-        }
-    }, { once: true })
-
-    watch(selectedItem, (newValue, oldValue) => {
-        if(newValue.entity !== oldValue.entity)  {
-            //update associated hosts and events
-
-        } else if( newValue.host !== oldValue.host) {
-            //update associated events
-        }
-    })
-
-    watch(search, (newValue, oldValue) => {
-        if(newValue && newValue.length === 0) {
-            dataStore.turnOffSearchMode()
-        }
-    })
-
-    const handleKeyPress = (event: KeyboardEvent) => {
-        if (event.key === "Enter") {
-            dataStore.setFilter(search.value || '')
-        }
-    }
+        search, 
+        entities, 
+        hosts, 
+        events, 
+        entityModel, 
+        hostModel, 
+        eventModel, 
+        handleKeyPress 
+    } = useSearch()
 </script>
 <template>
         <div class="search">

@@ -5,12 +5,11 @@
     import ChevronLeft from './icons/ChevronLeft.vue';
 
     const emits = defineEmits(['close'])
-    const props = defineProps<{ menu: any[] }>()
     const openMenus = ref<{ [key: string]: boolean }>({})
+    defineProps<{ menu: any[] }>()
 
-    // Toggle submenu visibility
-    const toggleSubMenu = (label: string) => {
-        openMenus.value[label] = !openMenus.value[label]
+    function toggleSubMenu(label: string) {
+      openMenus.value[label] = !openMenus.value[label]
     }
 </script>
 

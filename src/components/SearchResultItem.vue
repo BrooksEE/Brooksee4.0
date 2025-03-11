@@ -8,7 +8,6 @@
     import ChevronsRight from './icons/ChevronsRight.vue';
 
     defineEmits(['selected-item'])
-    //TODO: define the actual types
     const props = defineProps<{
         data: {
             entity: Entity
@@ -19,6 +18,7 @@
 
     const { updateSelectedItem } = useSelectedItemStore()
     const { getHostById, getLatestEventFromHost } = useDataStore()
+    
     function formatEventName(event: Event) {
         return `${ new Date(event.date).getFullYear() } - ${ event.name }`
     }
@@ -59,14 +59,14 @@
 
         <div v-if="data.events.length > 0" class="events">
             <template v-for="(event, idx) in data.events" :key="idx">
-                <p @click="handleEventClick(event)" class="event">
+                <div @click="handleEventClick(event)" class="event">
                     <div class="event-data">
                         <div>
                             <span class="event-icon">🏆</span> {{ formatEventName(event) }} 
                         </div>
                         <span class="event-host">Host: {{ getEventHostName(event) }}</span>
                     </div>
-                </p>
+                </div>
             </template>
         </div>
     </div>

@@ -13,7 +13,7 @@ export const useDataStore = defineStore('data', () => {
   const inSearchMode = ref(false)
   const loading = ref(false)
   const initialDataLoaded = ref(false)
-  const { selectedItem } = useSelectedItemStore()
+  const selectedItemStore = useSelectedItemStore()
 
   // Fetch data from JSON file and populate combinedOriginalData
   const fetchData = async () => {
@@ -94,15 +94,6 @@ export const useDataStore = defineStore('data', () => {
       event.name.toLowerCase().includes(filter.toLowerCase())
     )
   }
-  
-  watch(selectedItem, (newValue, oldValue) => {
-    if(newValue.entity !== oldValue.entity)  {
-      //update associated hosts and events
-      
-    } else if( newValue.host !== oldValue.host) {
-      //update associated events
-    }
-  })
 
   watch(searchFilter, (newValue, oldValue) => {
     if(newValue !== oldValue){
@@ -114,7 +105,7 @@ export const useDataStore = defineStore('data', () => {
 
   }
 
-  const setFilter = (filter: string) => {
+  function setFilter(filter: string){
     searchFilter.value = filter.trim()
     inSearchMode.value = true
     console.log("search filter is set to:", searchFilter.value)
@@ -186,20 +177,53 @@ export const useDataStore = defineStore('data', () => {
     
     if (filteredData.length) {
       return filteredData.flatMap(item =>
-        item[key].map(subItem => ({
-          value: subItem[valueKey] as string, 
-          label: subItem[labelKey] as string
-        }))
+        item[key]
+          .map(subItem => ({
+            value: subItem[valueKey] as string, 
+            label: subItem[labelKey] as string
+          }))
+          .filter(item => item.label.trim() !== "")
       )
     }
-  
+    
+    else if(selectedItemStore.selectedItem.entity.id !== -1){
+      console.log('here with key:', key)
+      return filterByEntityOrHost(originalData, key)
+      .map(item => ({
+        value: item[valueKey] as string,
+        label: item[labelKey] as string
+      }))
+      .filter(item => item.label.trim() !== "")
+      .sort((a, b) => a.label.localeCompare(b.label))
+    }
+
     return originalData
       .map(item => ({
         value: item[valueKey] as string,
         label: item[labelKey] as string
       }))
+      .filter(item => item.label.trim() !== "")
       .sort((a, b) => a.label.localeCompare(b.label))
   }
+
+  function filterByEntityOrHost<T>(data: T[], key: string): T[] {
+    console.log("key:", key)
+    if (key === "hosts") {
+      console.log("entity id:", selectedItemStore.selectedItem.entity.id)
+      let hosts = data.filter(item => (item as Host).entity_id === selectedItemStore.selectedItem.entity.id)
+      console.log(`returning ${ key }:`, hosts)
+      return hosts
+    }
+    if (key === "events") {
+      console.log("host id:", selectedItemStore.selectedItem.host.id)
+      let events = data.filter(item => (item as Event).host_id === selectedItemStore.selectedItem.host.id)
+      console.log(`returning ${ key }:`, events)
+      return events
+    }
+
+    return data
+  }
+  
   
   const getFilteredHostOptions = () => getFilteredItems(filteredSearchData.value, data.value.hosts, "hosts", "id", "name")
   

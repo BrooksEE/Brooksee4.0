@@ -1,12 +1,12 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { useDataStore } from './data';
 import type { Event } from '@/types/event';
 import type { Entity } from '@/types/entity';
 import type { Host } from '@/types/host';
+import { useDataStore } from './data';
 
 export const useSelectedItemStore = defineStore('selected', () => {
-    const { getLatestEventFromHost, getFirstAlphabeticalHostInEntity } = useDataStore()
+    const dataStore = useDataStore()
 
     const selectedItem = ref<{ 
       entity: Entity
@@ -19,16 +19,16 @@ export const useSelectedItemStore = defineStore('selected', () => {
     })
 
     function updateSelectedItem(entity: Entity, host: Host = {} as Host, event: Event = {} as Event) {
-      console.log('here!!!!!!!!!!')
       if(Object.keys(host).length === 0) {
-        host = getFirstAlphabeticalHostInEntity(entity.id)
+        host = dataStore.getFirstAlphabeticalHostInEntity(entity.id)
       }
 
       if(Object.keys(event).length === 0){
-        event = getLatestEventFromHost(host.id)
+        event = dataStore.getLatestEventFromHost(host.id)
       }
 
       selectedItem.value = { entity, host, event }
+      console.log("selectedItem:", selectedItem.value)
     }   
 
     return {

@@ -1,16 +1,20 @@
 <script setup lang="ts">
     import { ref, onMounted, onUnmounted } from 'vue';
     import ChevronsRight from '@/components/icons/ChevronsRight.vue';
-    import SideBarExpandedSideMenu from './SideBarExpandedSideMenu.vue';
     
-    const props = defineProps<{ menu: any[] }>()
+    defineProps<{ menu: any[] }>()
     const openMenus = ref<{ [key: string]: boolean }>({})
     const menuRef = ref<HTMLElement | null>(null)
 
-    // Toggle submenu visibility
-    const toggleSubMenu = (label: string) => {
-        console.log("label:", label, openMenus.value[label])
-        
+    onMounted(() => {
+        document.addEventListener('click', handleClickOutside)
+    })
+
+    onUnmounted(() => {
+        document.removeEventListener('click', handleClickOutside)
+    })
+
+    function toggleSubMenu(label: string){
         // Close all other submenus
         Object.keys(openMenus.value).forEach((key) => {
             if(key !== label){
@@ -21,20 +25,11 @@
         openMenus.value[label] = !openMenus.value[label]
     }
 
-    // Handle clicks outside the menu to close submenus
-    const handleClickOutside = (event: MouseEvent) => {
+    function handleClickOutside(event: MouseEvent){
         if (menuRef.value && !menuRef.value.contains(event.target as Node)) {
             openMenus.value = {} // Close all submenus
         }
     }
-
-    onMounted(() => {
-        document.addEventListener('click', handleClickOutside)
-    })
-
-    onUnmounted(() => {
-        document.removeEventListener('click', handleClickOutside)
-    })
 </script>
 <template>
     <div ref="menuRef">

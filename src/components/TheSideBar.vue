@@ -49,7 +49,7 @@ const bottomSectionIcons = [{ component: UserProfile, label: "Profile" }]
 const activeMenu = ref<string | null>(null)
 
 // Function to toggle the active menu
-const toggleMenu = (label: string) => {
+function toggleMenu(label: string) {
   activeMenu.value = activeMenu.value === label ? null : label
 }
 </script>

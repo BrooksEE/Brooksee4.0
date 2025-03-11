@@ -2,34 +2,20 @@
     import { ref, watch } from 'vue';
     import { storeToRefs } from 'pinia';
     import { useDataStore } from '@/stores/data';
+    import type { SearchResult } from '@/types/searchResult'
     import SearchBarResultsSection from './SearchBarResultsSection.vue';
     import SearchResultItem from './SearchResultItem.vue';
 
     defineProps({
         searchData: Object
     })
-
-    /* TODO: add an actual type for this in the types folder */
-    interface SearchResult {
-        entity: any;
-        hosts: any[];
-        events: any[];
-    }
     
     let searchData = ref<SearchResult[]>([])
     
-    /* TODO: 
-        - [DONE] Decide on tiered display ( entities => hosts => events )
-        - [DONE] Display search results
-        - [DONE] Ensure Event displays with the year
-        - When a search result is selected, select the entity, host, and event
-        - Set up the event & host options when something is selected
-    */
     const dataStore = useDataStore()
     const { loading } = storeToRefs(dataStore)
 
     watch(() => dataStore.filteredSearchData, (newValue, oldValue) => {
-        console.log('filtered data:', newValue)
         searchData.value = newValue
     }, { deep: true, immediate: true })
 
